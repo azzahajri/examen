@@ -1,26 +1,20 @@
 package edu.polytech.examentp.entity;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import edu.polytech.examentp.entity.Bureau;
+import edu.polytech.examentp.entity.Projet;
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
-import java.util.Set;
-
-@Entity
-@Table(name = "myChefDeProjet")
 @Getter
 @Setter
+@ToString
+@Data
+@Entity
+@Table(name = "chef_de_projet")
 public class ChefDeProjet {
-
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @OneToMany(mappedBy = "chefDeProjet", cascade = CascadeType.ALL)  // Adjusted mappedBy to "chefDeProjet"
-    private Set<Projet> projets;
-
-//    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-//    @ManyToOne
-//    @JoinColumn(name = "bureau_id")
-//    private Bureau bureau;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,4 +22,13 @@ public class ChefDeProjet {
 
     private String nom;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "projet_id", referencedColumnName = "id")
+    private Projet projet;
+
+    @ManyToOne
+    @JoinColumn(name = "bureau_id")
+    private Bureau bureau;
+
+    // getters and setters
 }

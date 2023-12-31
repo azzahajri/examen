@@ -1,25 +1,26 @@
 package edu.polytech.examentp.entity;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import edu.polytech.examentp.entity.Projet;
 import jakarta.persistence.*;
 
-import java.util.List;
 import java.util.Set;
+
 @Entity
-@Table(name = "membre_equipe")  // Add the @Table annotation with the appropriate table name
+@Table(name = "membre_equipe")
 public class MembreEquipe {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-
     private Long id;
-    @Column(name = "name")
 
     private String nom;
 
-//    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-//    @ManyToMany(mappedBy = "membresEquipe")
-//    private List<Projet> projets;
+    @ManyToMany
+    @JoinTable(
+            name = "projet_membre_equipe",
+            joinColumns = @JoinColumn(name = "membre_equipe_id"),
+            inverseJoinColumns = @JoinColumn(name = "projet_id"))
+    private Set<Projet> projets;
 
-    // Constructors, getters, and setters
+    // getters and setters
 }

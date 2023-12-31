@@ -1,42 +1,37 @@
 package edu.polytech.examentp.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import edu.polytech.examentp.entity.ChefDeProjet;
+import edu.polytech.examentp.entity.MembreEquipe;
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
+import java.util.Date;
 import java.util.Set;
-
-@Entity
-@Table(name = "myprojet")
 @Getter
 @Setter
+@ToString
+@Data
+@Entity
+@Table(name = "projet")
 public class Projet {
 
-//    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-//    @ManyToMany(mappedBy = "projets")
-//    private Set<MembreEquipe> membresEquipe;
-
-//    @JsonIgnoreProperties("projets")
-//    @JoinTable(
-//            name = "Membre-Equipe",
-//            joinColumns = @JoinColumn(name = "Membre-Equipe-id"),
-//            inverseJoinColumns = @JoinColumn(name = "Membre-Equipe-nom")
-//    )
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @ManyToOne( cascade = CascadeType.ALL)
-    @JoinColumn(name = "chef_id")
-    private ChefDeProjet chefDeProjet;
-
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)  // Use appropriate strategy for your database
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name")
-    private String name;
+    private String nom;
 
-    @Column(name = "mail")
-    private String email;
+    @Temporal(TemporalType.DATE)
+    private Date dateDebut;
 
+    @OneToOne(mappedBy = "projet", cascade = CascadeType.ALL)
+    private ChefDeProjet chefDeProjet;
+
+    @ManyToMany (mappedBy = "projets")
+    private Set<MembreEquipe> membresEquipe;
+
+    // getters and setters
 }
