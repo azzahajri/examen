@@ -1,5 +1,6 @@
 package edu.polytech.examentp.Controller;
 
+import edu.polytech.examentp.entity.Bureau;
 import edu.polytech.examentp.entity.ChefDeProjet;
 import edu.polytech.examentp.entity.Projet;
 import edu.polytech.examentp.repository.ChefDeProjetRepository;
@@ -12,31 +13,46 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 @RestController
 @RequestMapping("/projets")
 public class ProjetController {
+    private static final Logger log = LoggerFactory.getLogger(ProjetController.class);
 
     @Autowired
     private ProjetRepository projetRepository;
 
+    @Autowired
+    private ChefDeProjetRepository chefDeProjetRepository;
+
     @PostMapping("/add")
-    public ResponseEntity<Projet> addProjet(@RequestBody Projet projet) {
+    public ResponseEntity<?> addProjet(@RequestBody Projet projet) {
         try {
+            // Manually save ChefDeProjet only if it's not null
+            if (projet.getChefDeProjet() != null) {
+                ChefDeProjet chefDeProjet = chefDeProjetRepository.save(projet.getChefDeProjet());
+                projet.setChefDeProjet(chefDeProjet);
+            }
+
             Projet projetObj = projetRepository.save(projet);
             return new ResponseEntity<>(projetObj, HttpStatus.CREATED);
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            log.error("Error while processing the request", e);
+            return new ResponseEntity<>("Error processing the request", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
+
     @GetMapping("/all")
-    public ResponseEntity<?> getAllProjets() {
+    public ResponseEntity<Iterable<Projet>> getAllProjets() {
         try {
             Iterable<Projet> projets = projetRepository.findAll();
-            return ResponseEntity.ok(projets);  // Use ResponseEntity.ok() for a successful response
+            log.info("Liste des projets récupérée avec succès.");
+            return ResponseEntity.ok(projets);
         } catch (Exception e) {
-            return new ResponseEntity<>("Failed to retrieve projects", HttpStatus.INTERNAL_SERVER_ERROR);
+            log.error("Erreur lors de la récupération de la liste des projets.", e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -50,10 +66,18 @@ public class ProjetController {
 
                 // Update fields
                 existingProjet.setNom(updatedProjet.getNom());
-                //existingProjet.setEmail(updatedProjet.getEmail());
+                existingProjet.setDateDebut(updatedProjet.getDateDebut());
 
-                // Update relationships
-                existingProjet.setChefDeProjet(updatedProjet.getChefDeProjet());
+                // Update ChefDeProjet if provided
+                if (updatedProjet.getChefDeProjet() != null) {
+                    ChefDeProjet updatedChef = chefDeProjetRepository.save(updatedProjet.getChefDeProjet());
+                    existingProjet.setChefDeProjet(updatedChef);
+                }
+
+                // Update MembresEquipe if provided
+                if (updatedProjet.getMembresEquipe() != null) {
+                    existingProjet.setMembresEquipe(updatedProjet.getMembresEquipe());
+                }
 
                 Projet updatedProjetObj = projetRepository.save(existingProjet);
                 return new ResponseEntity<>(updatedProjetObj, HttpStatus.OK);
@@ -61,6 +85,7 @@ public class ProjetController {
 
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (Exception e) {
+            // Log the exception or handle it appropriately
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -71,9 +96,11 @@ public class ProjetController {
             projetRepository.deleteAll();
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (Exception e) {
+            // Log the exception or handle it appropriately
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
     @DeleteMapping("/deleteProjetById/{id}")
     public ResponseEntity<HttpStatus> deleteProjet(@PathVariable Long id) {
         try {
@@ -83,9 +110,8 @@ public class ProjetController {
             // The record with the given id doesn't exist
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (Exception e) {
+            // Log the exception or handle it appropriately
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 }
-

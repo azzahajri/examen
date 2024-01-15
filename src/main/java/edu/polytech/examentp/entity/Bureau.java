@@ -1,10 +1,12 @@
 package edu.polytech.examentp.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -18,11 +20,11 @@ public class Bureau {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Other fields
+    private String localisation;
 
-//    @OneToMany
-//    @JoinColumn(name = "bureau-id")
-//    private ChefDeProjet chefDeProjet;
+    @OneToMany(mappedBy = "bureau", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private Collection<ChefDeProjet> chefsDeProjet;
 
 
 

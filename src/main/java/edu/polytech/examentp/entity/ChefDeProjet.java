@@ -1,19 +1,24 @@
 package edu.polytech.examentp.entity;
-
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import edu.polytech.examentp.entity.Bureau;
 import edu.polytech.examentp.entity.Projet;
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import java.util.Collection;
 
-@Getter
-@Setter
-@ToString
-@Data
 @Entity
 @Table(name = "chef_de_projet")
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ChefDeProjet {
 
     @Id
@@ -22,13 +27,12 @@ public class ChefDeProjet {
 
     private String nom;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "projet_id", referencedColumnName = "id")
-    private Projet projet;
+    @OneToMany(mappedBy = "chefDeProjet", cascade = CascadeType.ALL)
+   // @JsonBackReference
+    private Collection<Projet> projets;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JsonIgnore
     @JoinColumn(name = "bureau_id")
     private Bureau bureau;
-
-    // getters and setters
 }

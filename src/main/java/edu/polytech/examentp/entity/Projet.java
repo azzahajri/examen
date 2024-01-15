@@ -1,5 +1,7 @@
 package edu.polytech.examentp.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import edu.polytech.examentp.entity.ChefDeProjet;
 import edu.polytech.examentp.entity.MembreEquipe;
 import jakarta.persistence.*;
@@ -8,6 +10,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.Set;
 @Getter
@@ -19,19 +22,25 @@ import java.util.Set;
 public class Projet {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     private String nom;
+    private LocalDate dateDebut;
 
-    @Temporal(TemporalType.DATE)
-    private Date dateDebut;
+  //  @OneToOne(cascade = CascadeType.ALL)
+   // @JoinColumn(name = "projet_id", referencedColumnName = "id")
+    //@JsonIgnore  // Ignorer la sérialisation de cette propriété
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JsonIgnore
+    private  ChefDeProjet chefDeProjet;
 
-    @OneToOne(mappedBy = "projet", cascade = CascadeType.ALL)
-    private ChefDeProjet chefDeProjet;
 
-    @ManyToMany (mappedBy = "projets")
+    @ManyToMany
+    @JoinTable(name = "projet_membre_equipe",
+            joinColumns = @JoinColumn(name = "projet_id"),
+            inverseJoinColumns = @JoinColumn(name = "membre_equipe_id"))
     private Set<MembreEquipe> membresEquipe;
 
-    // getters and setters
+
 }
